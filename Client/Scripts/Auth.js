@@ -11,7 +11,7 @@ const getData = async () =>
         });
         const user = await axiosInstance.get('user')
         
-        return user.data.books;
+        return user;
 
         
     }catch(err){

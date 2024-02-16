@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
@@ -93,9 +94,11 @@ class AuthController extends Controller
     {
         $user = User::find(Auth::user()->id);
 
+
+
         return response()->json([
-            'books'=>$user->books,
-            'user'=>$user
-        ],200);
+            'books' => $user->books,
+            'user' => $user
+        ], 200)->header('Content-Type', 'application/json; charset=utf-8');
     }
 }

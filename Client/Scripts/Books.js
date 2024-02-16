@@ -1,10 +1,28 @@
 let bookmarkedBooks = []
 
+const subjects = [
+    "Fiction", "Fantasy", "Science_Fiction", "Mystery", "Romance", "Thriller", "Horror", "Young_Adult", "Historical_Fiction", "Nonfiction",
+    "Biography", "Memoir", "Self-Help", "Business", "Cooking", "Travel", "History", "Art", "Science", "Philosophy",
+    "Religion", "Politics", "Psychology", "Health", "Fitness", "Parenting", "Education", "Sports", "Technology",
+    "Humor", "Poetry", "Drama", "Classic_Literature", "Contemporary_Literature", "Short_Stories", "Graphic_Novels", "Children's_Books", "Picture_Books",
+    "Adventure", "Dystopian", "Urban_Fantasy", "Paranormal", "Supernatural", "Historical", "Crime", "Legal", "Military",
+    "Spy", "Espionage", "Romantic_Comedy", "Erotica", "Sci-Fi_Fantasy", "Speculative_Fiction", "Steampunk", "Cyberpunk",
+    "Mythology", "Fairy_Tales", "Folklore", "Anthology", "Essays", "True_Crime", "Reference", "Encyclopedia", "Almanac",
+    "Dictionary", "Thesaurus", "Grammar", "Language_Learning", "Mathematics", "Physics", "Biology", "Chemistry", "Astronomy",
+    "Environmental_Science", "Geology", "Medicine", "Engineering", "Architecture", "Design", "Fashion", "Music", "Film",
+    "Theater", "Television", "Media_Studies", "Journalism", "Communication", "Social_Sciences", "Economics", "Sociology",
+    "Anthropology", "Archaeology", "Political_Science"
+];
+
 
 const getBooks = async () =>
 {
+    const randomIndex = Math.floor(Math.random() * subjects.length);
+    const randomSubject = subjects[randomIndex];
+    let newString = randomSubject.replace('_', ' ');
+    document.getElementById('recommendation').textContent = `Recommended : ${newString}`
     try{
-        const books = await axios.get('https://openlibrary.org/subjects/love.json')
+        const books = await axios.get(`https://openlibrary.org/subjects/${randomSubject.toLocaleLowerCase()}.json?limit=100`)
         spreadBook(books.data.works)
     }catch(error)
     {
@@ -29,40 +47,53 @@ const fetchImg = async (url) => {
 const spreadBook = async (books) => {
     const bookMarked = await getData();
     
-    Object.values(bookMarked).forEach((element)=>{
+
+    document.getElementById('profileImg').src = `http://localhost:8000/storage/images/${bookMarked.data.user.image_id}`
+    
+    Object.values(bookMarked.data.books).forEach((element)=>{
         bookmarkedBooks.push(element.Book_id)
     })
     
     for (const element of books) {
-
-        
         
         const book = bookTemplate.content.cloneNode(true); 
         book.querySelector('#bookTitle').textContent = element.title;
-        book.querySelector('#bookAuthor').textContent = element.authors[0].name;
+        book.querySelector('#bookAuthor').textContent = (element.authors[0].name) ? element.authors[0].name : "Author Not Found" ;
         book.querySelector('#bookGenre').textContent = `${element.subject[1]}, ${element.subject[2]}, ${element.subject[3]}`;
         book.getElementById('bookImage').src = `https://covers.openlibrary.org/b/id/${element.cover_id}-S.jpg`;
         book.getElementById('bookImage').addEventListener('click',function(){
-            window.location.href = `book.html?title=${element.availability.openlibrary_work}`
+            window.location.href = `book.html?id=${element.availability.openlibrary_work}`
         })
+
+        
+
         if(bookmarkedBooks.includes(element.title))
         {
             book.querySelector('#bookmarkbtn').innerHTML = 'Bookmarked <i class="fa-solid fa-star"></i>';
             book.querySelector('#bookmarkbtn').addEventListener('click', function() {
-                removeBookmark(this, element.title);
+                removeBookmark(this, element.availability.openlibrary_work, element.title);
             });
         }else
         {
             book.querySelector('#bookmarkbtn').addEventListener('click', function() {
-                bookmark(this, element.title);
-            });
+                bookmark(this, element.availability.openlibrary_work, element.title);
+            }); 
         }
+        if(element.availability)
+        {   
+            if(element.availability)
+            {
+                document.getElementById('bookList').appendChild(book);
+                console.log(element.availability.openlibrary_work)
+            }
+            
+        }
+
         
-        document.getElementById('bookList').appendChild(book);
     }
 }
 
-const bookmark = async(element,  isbn) =>
+const bookmark = async(element,  id, title) =>
 {   
     
     try{
@@ -74,7 +105,7 @@ const bookmark = async(element,  isbn) =>
 
              
         });
-        const bookmark = await axiosInstance.post(`bookmark/${isbn}`)
+        const bookmark = await axiosInstance.post(`bookmark/${id}/${title}`)
 
         element.innerHTML = 'Bookmarked <i class="fa-solid fa-star"></i>';
     }catch(err)

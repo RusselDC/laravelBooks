@@ -12,16 +12,17 @@ use App\Models\User;
 
 class BooksController extends Controller
 {
-    public function bookmark($isbn)
+    public function bookmark($id,$title)
     {
         $user = Auth::user();
 
 
-        $book = Books::get()->where('Book_id',$isbn)->first();
+        $book = Books::get()->where('Book_id',$id)->where('title',$title)->first();
         if(!$book)
         {
             $book = Books::create([
-                'Book_id'=>$isbn
+                'Book_id'=>$id,
+                'title'=>$title
             ]);
         }
 
@@ -33,11 +34,11 @@ class BooksController extends Controller
         ],200);
     }
 
-    public function removeBookmark($title)
+    public function removeBookmark($id,$title)
     {
         $user = Auth::user();
 
-        $book = Books::get()->where('Book_id',$title)->first();
+        $book = Books::get()->where('Book_id',$id)->where('title',$title)->first();
 
 
         $user->books()->detach($book);

@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\BooksController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CommentsController;
 
 
 /*
@@ -22,8 +23,10 @@ use App\Http\Controllers\Api\AuthController;
 Route::group(['middleware'=>'auth:sanctum'],function()
 {
     Route::get('/user',[AuthController::class,'user']);
-    Route::post('/bookmark/{isbn}',[BooksController::class,'bookmark']);
-    Route::post('/remove/bookmark/{title}',[BooksController::class,'removeBookmark']);
+    Route::post('/bookmark/{id}/{title}',[BooksController::class,'bookmark']);
+    Route::post('/remove/bookmark/{id}/{title}',[BooksController::class,'removeBookmark']);
+    Route::post('/book/{id}/comment',[CommentsController::class,'store']);
+    Route::get('/book/{id}/comment',[CommentsController::class,'getComments']);
 });
 
 

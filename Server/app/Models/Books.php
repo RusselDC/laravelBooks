@@ -12,12 +12,17 @@ class Books extends Model
     protected $table = 'books';
     protected $fillable = [
         'Book_id',
-        'status'
+        'title'
     ];
 
     public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comments::class);
     }
 
 }
